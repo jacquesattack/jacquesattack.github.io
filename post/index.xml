@@ -6,10 +6,21 @@
     <description>Recent content in Posts on My Cool Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 11 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Why Does Lloyd&#39;s Algorithm Converge?</title>
+      <link>/2018/10/11/why-does-lloyd-s-algorithm-converge/</link>
+      <pubDate>Thu, 11 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/10/11/why-does-lloyd-s-algorithm-converge/</guid>
+      <description>Introduction In the last post I presented an implementation of Lloyd’s Algorithm for solving K-means clustering. One question I did not answer there is this: why does Lloyd’s Algorithm work? Why should it converge at all? In this post I will attempt to answer this question.
+ Cost Function K-means minimizes the within cluster sums of squares. We can define a function to describe this cost:
+library(tidyverse) # point and mu are numerical vectors of the same length sum_of_squares = function(point,mu){ sum((point - mu)^2) } # points a data.</description>
+    </item>
     
     <item>
       <title>An Implementation of K-means (Lloyd&#39;s Algorithm)</title>
