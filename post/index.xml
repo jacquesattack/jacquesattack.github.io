@@ -6,10 +6,20 @@
     <description>Recent content in Posts on My Cool Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 11 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 17 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>An Implementation of K-means&#43;&#43;, Part 1</title>
+      <link>/2018/10/17/an-implementation-of-k-means/</link>
+      <pubDate>Wed, 17 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/10/17/an-implementation-of-k-means/</guid>
+      <description>Introduction Previously I wrote about K-means clustering using Lloyd’s Algorithm. That algorithm can be split into two parts:
+Choosing initial centers Iterating until final centers are chosen  I mostly ignored step 1 by choosing centers randomly from the available data. However, there are other ways to choose centers, and choosing centers randomly can lead to various problems. For example, the number of steps to convergence could be much larger if the initial centers are very closer together than if the initial centers were closer to their final positions.</description>
+    </item>
     
     <item>
       <title>Why Does Lloyd&#39;s Algorithm Converge?</title>
