@@ -6,10 +6,22 @@
     <description>Recent content in Posts on My Cool Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 25 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Some Exercises, Part 1</title>
+      <link>/2018/10/25/some-exercises-part-1/</link>
+      <pubDate>Thu, 25 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/10/25/some-exercises-part-1/</guid>
+      <description>Introduction In this post I will work through a couple of exercies from “Cracking the Coding Interview” by Gayle McDowell.
+ 1.1 Implement an algorithm to determine if a string has all unique characters.
+In R this is accomplished with the following code:
+all_unique_chars = function(string){ try(!any(table(strsplit(string,&amp;quot;&amp;quot;)[[1]]) &amp;gt; 1)) } library(testthat) test_that(&amp;quot;Test when there are duplicated characters&amp;quot;, expect_equal(all_unique_chars(&amp;quot;foobar&amp;quot;),FALSE)) test_that(&amp;quot;Test when there are NO duplicated characters&amp;quot;, expect_equal(all_unique_chars(&amp;quot;big&amp;quot;),TRUE)) The main idea here is that the table function creates a contingency table, after which we check if any value in the table is greater than 1, signaling that that character is not unique.</description>
+    </item>
     
     <item>
       <title>An Implementation of K-means&#43;&#43;, Part 1</title>
