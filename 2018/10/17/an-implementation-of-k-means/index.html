@@ -145,36 +145,36 @@ print(output)</code></pre>
 ## # A tibble: 2 x 2
 ##       x     y
 ## * &lt;dbl&gt; &lt;dbl&gt;
-## 1  2.23  60.0
-## 2  2.90  63.0
+## 1  4.42  79.0
+## 2  3.42  64.0
 ## 
 ## [[2]]
 ## # A tibble: 2 x 2
 ##       x     y
 ##   &lt;dbl&gt; &lt;dbl&gt;
-## 1  2.01  52.9
-## 2  4.14  78.8
+## 1  4.34  81.0
+## 2  2.26  56.4
 ## 
 ## [[3]]
 ## # A tibble: 2 x 2
 ##       x     y
 ##   &lt;dbl&gt; &lt;dbl&gt;
-## 1  2.07  54.4
-## 2  4.28  80.0
+## 1  4.30  80.4
+## 2  2.11  54.9
 ## 
 ## [[4]]
 ## # A tibble: 2 x 2
 ##       x     y
 ##   &lt;dbl&gt; &lt;dbl&gt;
-## 1  2.09  54.8
-## 2  4.30  80.3
+## 1  4.30  80.3
+## 2  2.09  54.8
 ## 
 ## [[5]]
 ## # A tibble: 2 x 2
 ##       x     y
 ##   &lt;dbl&gt; &lt;dbl&gt;
-## 1  2.09  54.8
-## 2  4.30  80.3</code></pre>
+## 1  4.30  80.3
+## 2  2.09  54.8</code></pre>
 <p>To make it more exciting, let’s plot the path of each center as it approaches convergence:</p>
 <pre class="r"><code>g = ggplot(data,aes(x=x,y=y)) + geom_point()
 for(i in 1:length(output)){

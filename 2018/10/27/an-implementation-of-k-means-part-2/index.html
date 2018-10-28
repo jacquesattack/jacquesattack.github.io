@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>An Implementation of K-means&#43;&#43;, Part 2 &middot; </title>
+        <meta name="description" content="Introduction In Part 1 of K-means&#43;&#43;, I discussed the motivation for this algorithm and made some changes to the original K-means implementation. Now I will write the actual implementation.
+ Algorithm library(tidyverse) library(magrittr) dist = function(v1,v2) { sqrt(sum((v1-v2)^2)) } kpp = function(data,k) { centroids = numeric(k) # assign first centroid at random from points centroids[1] = sample(1:nrow(data),1) for(i in 2:k) { # For each data point x, compute D(x), the distance between # x and the nearest center that has already been chosen d_x = apply(data,1,function(row){ # find closest center d_to_centers = sapply(centroids[1:(i-1)], function(center) { dist(row,data[center,]) }) min(d_to_centers) }) # Choose one new data point at random as a new center, # using a weighted probability distribution where a point x # is chosen with probability proportional to D(x)^2.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.49" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
+        
+        
+        <link rel="stylesheet" href="/css/github-gist.css" rel="stylesheet" id="theme-stylesheet">
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                                          <h1 class="site-title">
+                        <a title="My Cool Blog" href="/">My Cool Blog</a>
+                    </h1>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="GitHub" href="https://github.com/jacquesattack/">GitHub</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">An Implementation of K-means&#43;&#43;, Part 2</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-10-27" itemprop="datePublished">Sat, Oct 27, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="#" itemprop="url" rel="author">jacquesattack</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    <div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In Part 1 of K-means++, I discussed the motivation for this algorithm and made some changes to the original K-means implementation. Now I will write the actual implementation.</p>
+</div>
+<div id="algorithm" class="section level1">
+<h1>Algorithm</h1>
+<pre class="r"><code>library(tidyverse)
+library(magrittr)
+
+dist = function(v1,v2) {
+  sqrt(sum((v1-v2)^2))
+}
+
+kpp = function(data,k) {
+    centroids = numeric(k)
+    
+    # assign first centroid at random from points
+    centroids[1] = sample(1:nrow(data),1)
+    
+    for(i in 2:k) {
+        # For each data point x, compute D(x), the distance between 
+        # x and the nearest center that has already been chosen
+        d_x = apply(data,1,function(row){
+            # find closest center
+            d_to_centers = sapply(centroids[1:(i-1)],
+                                  function(center) {
+                                    dist(row,data[center,])
+                                  })
+            min(d_to_centers)
+        })
+        
+        # Choose one new data point at random as a new center, 
+        # using a weighted probability distribution where a point x 
+        # is chosen with probability proportional to D(x)^2.   
+        probs = d_x^2 / sum(d_x)
+        zero_prob = which(d_x == 0)
+        centroids[i] = sample(seq_along(probs)[-zero_prob],1,prob=probs[-zero_prob])
+    }
+
+    return(data[centroids,])
+}</code></pre>
+<p>Now let’s test it.</p>
+<pre class="r"><code>d = faithful %&gt;% rename(x = eruptions, y = waiting)
+centers = kpp(d,2)
+print(centers)</code></pre>
+<pre><code>##         x  y
+## 246 3.833 82
+## 39  1.833 59</code></pre>
+<p>Let’s see how these initial centers look:</p>
+<pre class="r"><code>ggplot(d) + geom_point(aes(x,y)) +
+  geom_point(data=centers,aes(x,y,colour=&quot;red&quot;)) +
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="/post/2018-10-27-an-implementation-of-k-means-part-2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Looks great! Intuitively, this algorithm was supposed to choose initial centers which are far away from each other, which is what it did. In the next part I’ll compare random initial centers vs. K-means++.</p>
+</div>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="My Cool Blog" href="/">My Cool Blog</a>
+                    </h1>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2018 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
+                </p>
+            </div>
+        </footer>
+
+        <script src="/js/jquery-1.11.3.min.js"></script>
+        <script src="/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>
+

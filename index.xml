@@ -6,10 +6,31 @@
     <description>Recent content on My Cool Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 25 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 28 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Some Exercises, Part 2</title>
+      <link>/2018/10/28/some-exercises-part-2/</link>
+      <pubDate>Sun, 28 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/10/28/some-exercises-part-2/</guid>
+      <description>1.3 Write a method to replace all spaces in a string with ‘%20’.
+Of course you can ‘cheat’ and just use gsub:
+input = &amp;quot;John Smith&amp;quot; print(gsub(&amp;quot; &amp;quot;,&amp;quot;%20&amp;quot;,input)) ## [1] &amp;quot;John%20Smith&amp;quot; Let’s try to write it ourselves. Here I use a useful pattern in R, which is preallocating a list object in memory and then calling do.call at the end. This is much better than calling c at every stage, or any other function.</description>
+    </item>
+    
+    <item>
+      <title>An Implementation of K-means&#43;&#43;, Part 2</title>
+      <link>/2018/10/27/an-implementation-of-k-means-part-2/</link>
+      <pubDate>Sat, 27 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/10/27/an-implementation-of-k-means-part-2/</guid>
+      <description>Introduction In Part 1 of K-means++, I discussed the motivation for this algorithm and made some changes to the original K-means implementation. Now I will write the actual implementation.
+ Algorithm library(tidyverse) library(magrittr) dist = function(v1,v2) { sqrt(sum((v1-v2)^2)) } kpp = function(data,k) { centroids = numeric(k) # assign first centroid at random from points centroids[1] = sample(1:nrow(data),1) for(i in 2:k) { # For each data point x, compute D(x), the distance between # x and the nearest center that has already been chosen d_x = apply(data,1,function(row){ # find closest center d_to_centers = sapply(centroids[1:(i-1)], function(center) { dist(row,data[center,]) }) min(d_to_centers) }) # Choose one new data point at random as a new center, # using a weighted probability distribution where a point x # is chosen with probability proportional to D(x)^2.</description>
+    </item>
     
     <item>
       <title>Some Exercises, Part 1</title>
