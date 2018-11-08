@@ -6,10 +6,20 @@
     <description>Recent content in Posts on My Cool Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 28 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 03 Nov 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>An Implementation of K-means||</title>
+      <link>/2018/11/03/an-implementation-of-k-means/</link>
+      <pubDate>Sat, 03 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/11/03/an-implementation-of-k-means/</guid>
+      <description>Introduction Although K-means++ provides good initial centers as seeds for the K-means (Lloyd’s) algorithm, it has a drawback: the centers are chosen sequentially. In the era of big data, every pass through the data could be expensive. Bahmani et. al. have written a parallel implementation of K-means++ which they discuss here and which I will implement in this post.
+ Algorithm library(tidyverse) dist = function(v1,v2) { sqrt(sum((v1-v2)^2)) } # point and mu are numerical vectors of the same length sum_of_squares = function(point,mu){ sum((point - mu)^2) } # points a data.</description>
+    </item>
     
     <item>
       <title>Some Exercises, Part 2</title>

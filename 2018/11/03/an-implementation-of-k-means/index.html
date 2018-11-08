@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>An Implementation of K-means|| &middot; </title>
+        <meta name="description" content="Introduction Although K-means&#43;&#43; provides good initial centers as seeds for the K-means (Lloyd’s) algorithm, it has a drawback: the centers are chosen sequentially. In the era of big data, every pass through the data could be expensive. Bahmani et. al. have written a parallel implementation of K-means&#43;&#43; which they discuss here and which I will implement in this post.
+ Algorithm library(tidyverse) dist = function(v1,v2) { sqrt(sum((v1-v2)^2)) } # point and mu are numerical vectors of the same length sum_of_squares = function(point,mu){ sum((point - mu)^2) } # points a data.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.49" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
+        
+        
+        <link rel="stylesheet" href="/css/github-gist.css" rel="stylesheet" id="theme-stylesheet">
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                                          <h1 class="site-title">
+                        <a title="My Cool Blog" href="/">My Cool Blog</a>
+                    </h1>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="GitHub" href="https://github.com/jacquesattack/">GitHub</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">An Implementation of K-means||</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-11-03" itemprop="datePublished">Sat, Nov 3, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="#" itemprop="url" rel="author">jacquesattack</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    <div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Although K-means++ provides good initial centers as seeds for the K-means (Lloyd’s) algorithm, it has a drawback: the centers are chosen sequentially. In the era of big data, every pass through the data could be expensive. Bahmani et. al. have written a parallel implementation of K-means++ which they discuss <a href="http://vldb.org/pvldb/vol5/p622_bahmanbahmani_vldb2012.pdf">here</a> and which I will implement in this post.</p>
+</div>
+<div id="algorithm" class="section level1">
+<h1>Algorithm</h1>
+<pre class="r"><code>library(tidyverse)
+
+dist = function(v1,v2) {
+  sqrt(sum((v1-v2)^2))
+}
+
+# point and mu are numerical vectors of the same length
+sum_of_squares = function(point,mu){
+  sum((point - mu)^2)
+}
+
+# points a data.frame
+cost = function(points,mu){
+  sum(apply(points,1,sum_of_squares,mu))
+}
+
+weight_centers = function(data,centers){
+  # weight centers
+  weights = table(sapply(1:nrow(data),function(i){
+    which.min(apply(data[centers,],1,function(row){
+      sqrt(sum_of_squares(row,data[i,]))
+    }))
+  }))
+  
+  return(weights)
+}
+
+oversample_init_centers = function(data,k,l){
+  centroids = sample(1:nrow(data),1)
+  
+  c = cost(data,centroids[1])
+  
+  phi = round(log(c))
+  
+  # create centers
+  for(i in 1:phi){
+    # get distance from every point to its closest center
+    min_dists = sapply(1:nrow(data),function(i){
+      min(apply(data[centroids,],1,function(row){
+        sqrt(sum_of_squares(row,data[i,]))
+      }))
+    })
+    
+    cutoffs = l*min_dists/sum(min_dists)
+    probs = runif(length(cutoffs))
+    
+    new_centroids = which(probs &lt; cutoffs)
+    centroids = c(centroids,new_centroids)
+  }
+  
+  return(unique(centroids))
+}
+
+k_means_par = function(data,k,l){
+  centers = oversample_init_centers(data,k,l)
+  w = weight_centers(data,centers)
+  return(data[centers,] %&gt;% mutate(weights = w))
+}
+
+# Added optional weights
+kpp = function(data,k) {
+  if(!(&quot;weights&quot; %in% colnames(data))){
+    data = data %&gt;% mutate(weights = 1/nrow(data))
+  }
+  centroids = numeric(k)
+  
+  # assign first centroid at random from points
+  centroids[1] = sample(1:nrow(data),1)
+  
+  for(i in 2:k) {
+    # For each data point x, compute D(x), the distance between 
+    # x and the nearest center that has already been chosen
+    d_x = apply(data,1,function(row){
+      # find closest center
+      d_to_centers = sapply(centroids[1:(i-1)],
+                            function(center) {
+                              dist(row,data[center,])
+                            })
+      min(d_to_centers)
+    })
+    
+    # Choose one new data point at random as a new center, 
+    # using a weighted probability distribution where a point x 
+    # is chosen with probability proportional to D(x)^2.   
+    probs = data$weights * d_x^2 / sum(d_x)
+    zero_prob = which(d_x == 0)
+    centroids[i] = sample(seq_along(probs)[-zero_prob],1,prob=probs[-zero_prob])
+  }
+  
+  return(data[centroids,])
+}
+
+kmp = function(data,k,l){
+  centers = k_means_par(data,2,2)
+  centers_kpp = kpp(centers,2)
+  kpp_all = kpp(data,2)
+  
+  # plot results
+  g = ggplot(data) + geom_point(aes(x,y)) +
+    geom_point(data=centers,aes(x,y),colour=&quot;blue&quot;) +
+    geom_point(data=centers_kpp,aes(x,y),colour=&quot;red&quot;) +
+    geom_point(data=kpp_all,aes(x,y),colour=&quot;green&quot;) +
+    theme(legend.position=&quot;none&quot;)
+  print(g)
+  
+  return(centers_kpp)
+}</code></pre>
+<p>Let’s plot some results. The blue points are the oversampled centers, the red points are the results of running K-means++ on the oversampled and weighted points, and the green points are the results of running K-means++ on the full data.</p>
+<pre class="r"><code>data = faithful %&gt;% rename(x = eruptions, y = waiting)
+
+kmp(data,2,2)</code></pre>
+<p><img src="/post/2018-11-03-an-implementation-of-k-means_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre><code>##        x  y weights
+## 17 2.217 50      10
+## 1  3.850 78      34</code></pre>
+</div>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="My Cool Blog" href="/">My Cool Blog</a>
+                    </h1>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2018 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
+                </p>
+            </div>
+        </footer>
+
+        <script src="/js/jquery-1.11.3.min.js"></script>
+        <script src="/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>
+
