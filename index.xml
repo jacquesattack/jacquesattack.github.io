@@ -6,10 +6,20 @@
     <description>Recent content on My Cool Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 03 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 08 Nov 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Minkowski Distance</title>
+      <link>/2018/11/08/minkowski-distance/</link>
+      <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/11/08/minkowski-distance/</guid>
+      <description>I was perusing this chapter on recommendation systems when I read about Minkowski distance and its relation to Manhattan distance and Euclidean distance. There is an interesting way to use R’s functional aspect to create a “distance factory” based on Minkowski distance:
+library(pracma) distance_factory = function(r){ if(r &amp;lt;= 0) stop(&amp;quot;argument to function must be positive&amp;quot;) function(x,y){ nthroot(sum(abs(x-y)^r),r) } } And now we can create different types of distance functions from the factory:</description>
+    </item>
     
     <item>
       <title>An Implementation of K-means||</title>
